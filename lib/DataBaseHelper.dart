@@ -58,15 +58,18 @@ class DataBaseHelper{
 
   Future<int> insert(Map<String, dynamic> row) async{
     Database db = await instance._initDatabase();
-    int id =  await db.insert(table, row);
+    var id =  await db.insert(table, row);
     return id;
  }
 
-   Future<List<Map<String,dynamic>>> queryAllRows() async {
+   Future<List<String>> queryAllRows() async {
     Database db = await instance._initDatabase();
-    List<Map<String,dynamic>> x = await db.rawQuery('SELECT * FROM $table');
-    x.forEach((row)=> print(row.values));
-    return x;
+    List<Map<String,dynamic>> s =  await db.query(table ,columns: [columnname]);
+    List<String> list = new List();
+    for(var x in s){
+      x.forEach((k,v)=>list.add(v));
+    }
+    return list;
  }
 }
 

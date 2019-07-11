@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(title: 'Flutter Demo Home Page'),
+
     );
   }
 }
@@ -40,25 +41,28 @@ class MyHomePage extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  //List<String> _todoItems = new List();
+  //var x =  DataBaseHelper.instance.queryAllRows();
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _MyHomePageState createState(){
+//    _getAllValues();
+    return new _MyHomePageState();
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-
-  var a =  DataBaseHelper.instance.queryAllRows();
-
-
-
-  List<String> _todoItems = [];
+ class _MyHomePageState extends State<MyHomePage> {
+  List<String> _todoItems = new List();
 
   Future _addToDOListItem() async
   {
+    //Future<List<Map<String,dynamic>>> a =  DataBaseHelper.instance.queryAllRows();
+
     Map results =  await Navigator.of(context).push(new MaterialPageRoute(builder: (context)=> additem()));
 
     if(results!=null && results.containsKey('selection')){
       setState(() {
+
         _todoItems.add(results['selection']);
       });
     }
@@ -80,7 +84,22 @@ class _MyHomePageState extends State<MyHomePage> {
         title: new Text(widget.title),
       ),
 
-      body: _buildotoList(),
+      body: FutureBuilder<List<String>>(
+        future: _getAllValues(),
+          builder:(BuildContext context, AsyncSnapshot<List<String>> list){
+          if(list.hasData){
+            return new ListView.builder(
+                itemCount: list.data.length,
+                itemBuilder:(context, index){
+                  return ListTile(
+                    title: Text(list.data[index]),
+                  );
+
+                });
+          }
+
+          }
+      ),
       floatingActionButton : FloatingActionButton(
         onPressed: _addToDOListItem,
         tooltip: 'Increment',
@@ -91,16 +110,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildotoList() {
-    return new ListView.builder(
-        itemCount: _todoItems.length,
-        itemBuilder:(context, index){
-          return ListTile(
-            title: Text(_todoItems[index]),
-          );
+      Widget _buildotoList() {
 
-        });
+        return new ListView.builder(
+            itemCount: _todoItems.length,
+            itemBuilder:(context, index){
+              return ListTile(
+                title: Text(_todoItems[index]),
+              );
+
+            });
   }
-
+   Future<List<String>> _getAllValues() async {
+     var x = await DataBaseHelper.instance.queryAllRows();
+     _todoItems.clear();
+     _todoItems.addAll(x);
+     return _todoItems;
+   }
 
 }
